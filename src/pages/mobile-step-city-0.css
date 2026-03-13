@@ -34,23 +34,24 @@
 .modalHeader{
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     color:black;
+    margin-bottom: 20px;
+    font-size: 20px;
 }
 .modalContent{
     background: white;
     width: 100%;
     max-height: 100vh;
-    border-radius: 20px 20px 0 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 .modalOverlay{
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 0;
+    left: 10px;
     right: 20px;
     bottom: 0;
     background-color: white;
@@ -91,3 +92,40 @@
     margin-top: 10px;
 
 }
+.backButton{
+    background-color: white;
+    color:rgba(0, 82, 194, 1);
+    border:none;
+    text-align: left;
+    width:90px;
+    font-size:16px;
+    padding: 8px 16px;
+    margin:10px 0;
+}
+.cross{
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: none;
+    position: relative;
+    cursor: pointer;
+    content: ' ';
+    padding: 0;
+}
+.cross:after, .cross:before {
+    position: absolute;
+    content: '';
+    width: 24px;
+    height: 3px;
+    background-color: rgba(108, 133, 168, 1);
+    top:50%;
+    left:50%;
+}
+.cross::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.cross::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+

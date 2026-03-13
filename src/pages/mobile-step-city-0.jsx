@@ -135,7 +135,7 @@ function CitySelector(){
                 <div className="modalContent">
                     <div className="modalHeader">
                         <h3> Выбор города </h3>
-                        <button onClick={()=>setModalOpen(false)}>крестик</button>
+                        <button className='cross' onClick={()=>setModalOpen(false)}></button>
                     </div>
                         <input
                             type="text"
