@@ -147,6 +147,7 @@ function CitySelector(){
                     <small className='smallDescription'>Сейчас: {selectedCity ? selectedCity.name : 'город не выбран'}</small>
                     {currentLevel !== 'countries' && (
                         <button className="backButton" onClick={goBack}>
+                            <span className='arrow'></span>
                             Назад
                         </button>
                     )}

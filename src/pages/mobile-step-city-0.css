@@ -37,8 +37,8 @@
     align-items: center;
     justify-content: space-between;
     color:black;
-    margin-bottom: 20px;
     font-size: 20px;
+    margin:0 5px 20px 5px;
 }
 .modalContent{
     background: white;
@@ -85,11 +85,11 @@
     border: solid 2px rgba(153, 153, 153, 1);
     border-radius: 8px;
     padding: 8px 16px;
+    margin:0 5px;
 }
 .smallDescription{
     color:rgba(153, 153, 153, 1);
-    margin-bottom: 20px;
-    margin-top: 10px;
+    margin:10px 5px 20px 5px;
 
 }
 .backButton{
@@ -97,10 +97,13 @@
     color:rgba(0, 82, 194, 1);
     border:none;
     text-align: left;
-    width:90px;
+    width:190px;
     font-size:16px;
     padding: 8px 16px;
     margin:10px 0;
+    display: flex;
+    align-items: center;
+    gap:5px;
 }
 .cross{
     width: 44px;
@@ -127,5 +130,17 @@
 
 .cross::after {
     transform: translate(-50%, -50%) rotate(-45deg);
+}
+.arrow{
+    width:8px;
+    height:8px;
+    border-bottom:2px solid rgba(0, 82, 194, 1);
+    border-left:2px solid rgba(0, 82, 194, 1);
+    transform: rotate(45deg);
+    display: inline-block;
+    margin-right: 5px;
+    flex-shrink: 0;
+    border-radius: 1px;
+
 }
 
