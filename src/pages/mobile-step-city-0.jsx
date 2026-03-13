@@ -137,6 +137,7 @@ function CitySelector(){
                         <h3> Выбор города </h3>
                         <button className='cross' onClick={()=>setModalOpen(false)}></button>
                     </div>
+                    <div className="magnifying-glass" ></div>
                         <input
                             type="text"
                             className='searchCity'

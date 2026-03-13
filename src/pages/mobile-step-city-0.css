@@ -84,9 +84,16 @@
     font-size: 16px;
     border: solid 2px rgba(153, 153, 153, 1);
     border-radius: 8px;
-    padding: 8px 16px;
-    margin:0 5px;
+    padding: 8px 16px 8px 30px;
+    line-height: 1;
+    height: 20px;
 }
+.searchCity:focus{
+    border: solid 2px rgba(153, 153, 153, 1);
+    color: rgba(153, 153, 153, 1);
+    outline:none;
+}
+
 .smallDescription{
     color:rgba(153, 153, 153, 1);
     margin:10px 5px 20px 5px;
@@ -141,6 +148,30 @@
     margin-right: 5px;
     flex-shrink: 0;
     border-radius: 1px;
+}
+.magnifying-glass {
+    position: relative;
+    left:15px;
+    top:22px;
+    width: 10px;
+    height: 10px;
+    box-sizing: border-box;
+    background-color: white;
+    border: 2px solid rgba(153, 153, 153, 1);
+    border-radius: 50%;
+    pointer-events: none;
+}
 
+.magnifying-glass:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    width: 9px;
+    height: 2px;
+    background-color: rgba(153, 153, 153, 1);
+    border-radius: 0 7.5px 7.5px 0;
+    transform-origin: 0 50%;
+    transform: translateX(100%) rotate(135deg);
 }
 
