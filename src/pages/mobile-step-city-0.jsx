@@ -10,6 +10,21 @@ function CitySelector(){
     const [selectedRegion, setSelectedRegion] = useState(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [data, setData] = useState(null)
+    const [filteredCities, setFilteredCities] = useState([]);
+
+    const handleSearchChange = (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+
+        if (query.length > 0 && selectedRegion?.children) {
+            const filtered = selectedRegion.children.filter(city =>
+                city.name.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredCities(filtered);
+        } else {
+            setFilteredCities([]);
+        }
+    };
 
 
     useEffect(() => {
@@ -42,6 +57,8 @@ function CitySelector(){
         console.log(city)
         setSelectedCity(city)
         setModalOpen(false)
+        setSearchQuery('')
+        setFilteredCities([])
     }
     const goBack = () => {
         if (currentLevel === 'districts') {
@@ -96,27 +113,86 @@ function CitySelector(){
         ))
     }
     const renderCities = () => {
-        if (!selectedRegion) return null
+        if (!selectedRegion?.children) return null
 
-        let cities = selectedRegion.children
+        let allCities = [...selectedRegion.children]
 
         if (searchQuery) {
-            cities = cities.filter(city =>
+            const filtered = allCities.filter(city =>
                 city.name.toLowerCase().includes(searchQuery.toLowerCase())
             )
+            return filtered.map(city => (
+                <button
+                    key={city.id}
+                    className={`list-item ${city.count > 30000 ? 'bold-city' : ''} ${selectedCity?.id === city.id ? 'selected' : ''}`}
+                    onClick={() => handleSelectCity(city)}
+                >
+                    {city.name}
+                </button>
+            ))
         }
+        allCities.sort((a, b) => a.name.localeCompare(b.name))
 
-        cities.sort((a, b) => a.name.localeCompare(b.name))
+        const topCities = [...allCities]
+            .sort((a, b) => (b.count || 0) - (a.count || 0))
+            .slice(0, 3)
 
-        return cities.map(city => (
-            <button
-                key={city.id}
-                className={`list-item ${selectedCity?.id === city.id ? 'selected':''}`}
-                onClick={() => handleSelectCity(city)}
-            >
-                {city.name}
-            </button>
-        ))
+        const otherCities = allCities.filter(city => !topCities.includes(city))
+
+        const groupedCities = {}
+        otherCities.forEach(city => {
+            const firstLetter = city.name[0].toUpperCase()
+            if (!groupedCities[firstLetter]) {
+                groupedCities[firstLetter] = []
+            }
+            groupedCities[firstLetter].push(city)
+        })
+
+        const sortedLetters = Object.keys(groupedCities).sort()
+        return (
+            <>
+                {topCities.length > 0 && (
+                    <div>
+                        {topCities.map(city => (
+                            <button
+                                key={city.id}
+                                className={`list-item ${city.count > 30000 ? 'bold-city' : ''} ${selectedCity?.id === city.id ? 'selected' : ''}`}
+                                onClick={() => handleSelectCity(city)}
+                            >
+                                <span className="letter-indicator"></span>
+                                {city.name}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {topCities.length > 0 && otherCities.length > 0 && (
+                    <div className='separator'></div>
+                )}
+
+                {otherCities.length > 0 && (
+                    <div>
+                        {sortedLetters.map(letter => (
+                            <div key={letter}>
+                                {groupedCities[letter].map((city, index) => (
+                                    <button
+                                        key={city.id}
+                                        className={`list-item ${city.count > 30000 ? 'bold-city' : ''} ${selectedCity?.id === city.id ? 'selected' : ''}`}
+                                        onClick={() => handleSelectCity(city)}
+                                    >
+                                         <span className="letter-indicator">
+                                            {index === 0 ? letter : ''}
+                                        </span>
+
+                                        <span >{city.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </>
+        )
     }
 
     return (
@@ -137,26 +213,43 @@ function CitySelector(){
                         <h3> Выбор города </h3>
                         <button className='cross' onClick={()=>setModalOpen(false)}></button>
                     </div>
-                    <div className="magnifying-glass" ></div>
+                    <div style={{height:'10px'}}>
+                    {!searchQuery && <div className="magnifying-glass" ></div>}
+                    </div>
                         <input
                             type="text"
                             className='searchCity'
                             placeholder="Название города"
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={handleSearchChange}
                         />
                     <small className='smallDescription'>Сейчас: {selectedCity ? selectedCity.name : 'город не выбран'}</small>
-                    {currentLevel !== 'countries' && (
+                    {!searchQuery && currentLevel !== 'countries' && (
                         <button className="backButton" onClick={goBack}>
                             <span className='arrow'></span>
                             Назад
                         </button>
                     )}
                     <div className='items-list'>
+                        {currentLevel === 'cities' && (
+                            <>
+                                {filteredCities.length > 0
+                                    ? filteredCities.map((city, index) => (
+                                        <button
+                                            key={city.id}
+                                            className={`list-item ${index === 0 ? 'bold-city' : ''} ${selectedCity?.id === city.id ? 'selected' : ''}`}
+                                            onClick={() => handleSelectCity(city)}
+                                        >
+                                            {city.name}
+                                        </button>
+                                    ))
+                                    : renderCities()
+                                }
+                            </>
+                        )}
                         {currentLevel === 'countries' && renderCountries()}
                         {currentLevel === 'districts' && renderDistricts()}
                         {currentLevel === 'regions' && renderRegions()}
-                        {currentLevel === 'cities' && renderCities()}
                     </div>
 
                 </div>
