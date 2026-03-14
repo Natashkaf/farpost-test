@@ -111,7 +111,7 @@ function CitySelector(){
         return cities.map(city => (
             <button
                 key={city.id}
-                className="list-item"
+                className={`list-item ${selectedCity?.id === city.id ? 'selected':''}`}
                 onClick={() => handleSelectCity(city)}
             >
                 {city.name}
