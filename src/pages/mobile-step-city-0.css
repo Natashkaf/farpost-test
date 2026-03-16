@@ -211,3 +211,33 @@ button:focus {
     margin: 20px 0;
     width: 100%;
 }
+.crossClearSearch{
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: none;
+    position: absolute;
+    right:10px;
+    top:90px;
+    cursor: pointer;
+    content: ' ';
+    padding: 0;
+
+}
+.crossClearSearch::after, .crossClearSearch::before {
+    position: absolute;
+    content: '';
+    width: 24px;
+    height: 1px;
+    background-color: rgba(153, 153, 153, 1);
+    top:50%;
+    left:50%;
+    border-radius: 35px;
+}
+.crossClearSearch::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.crossClearSearch::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}

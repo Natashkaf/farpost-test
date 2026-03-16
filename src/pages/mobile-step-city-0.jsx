@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react'
 import './mobile-step-city-0.css'
+import Cookies from 'js-cookie'
 
 function CitySelector(){
     const [selectedCity, setSelectedCity] = useState(null)
@@ -11,6 +12,47 @@ function CitySelector(){
     const [searchQuery, setSearchQuery] = useState('')
     const [data, setData] = useState(null)
     const [filteredCities, setFilteredCities] = useState([]);
+
+    useEffect(() => {
+        const savedCityId = Cookies.get('savedCityId')
+        if (savedCityId && data){
+            const findCityById = (nodes, id) =>{
+                for (const node of nodes){
+                    if (node.id === parseInt(id)){
+                        return node
+                    }
+                    if(node.children){
+                        const found = findCityById(node.children, id)
+                        if (found) return found
+                    }
+                }
+                return null
+            }
+            for (const country of data){
+                const found = findCityById([country], parseInt(savedCityId))
+                if (found){
+                    // eslint-disable-next-line react-hooks/set-state-in-effect
+                    setSelectedCity(found)
+                    break
+                }
+            }
+
+        }
+    },[data])
+
+    const isTerminalNode = (node) =>{
+        return !node.children || node.children.length === 0
+    }
+    const handleSelectNode = (node) =>{
+        Cookies.set('savedCityId', node.id, {expires:365})
+        setSelectedCity(node)
+
+        if(isTerminalNode(node)){
+            setModalOpen(false)
+            setSearchQuery('')
+            setFilteredCities([])
+        }
+    }
 
     const handleSearchChange = (e) => {
         const query = e.target.value;
@@ -36,29 +78,32 @@ function CitySelector(){
         setSelectedCountry(country)
         setSelectedDistrict(null)
         setSelectedRegion(null)
-        setSelectedCity(null)
         setCurrentLevel('districts')
         setSearchQuery('')
+        if(isTerminalNode(country)){
+            handleSelectNode(country)
+        }
     }
     const handleSelectDistrict = (district) => {
         setSelectedDistrict(district)
         setSelectedRegion(null)
-        setSelectedCity(null)
         setCurrentLevel('regions')
         setSearchQuery('')
+        if(isTerminalNode(district)){
+            handleSelectNode(district)
+        }
     }
     const handleSelectRegion = (region) => {
         setSelectedRegion(region)
-        setSelectedCity(null)
         setCurrentLevel('cities')
         setSearchQuery('')
+
+        if(isTerminalNode(region)){
+            handleSelectNode(region)
+        }
     }
     const handleSelectCity = (city) =>{
-        console.log(city)
-        setSelectedCity(city)
-        setModalOpen(false)
-        setSearchQuery('')
-        setFilteredCities([])
+        handleSelectNode(city)
     }
     const goBack = () => {
         if (currentLevel === 'districts') {
@@ -223,6 +268,14 @@ function CitySelector(){
                             value={searchQuery}
                             onChange={handleSearchChange}
                         />
+                    {searchQuery.length >0 && (
+                        <button className='crossClearSearch' onClick={()=>{
+                            setSearchQuery('')
+                            setFilteredCities([])
+                        }
+                        }>
+                        </button>
+                    )}
                     <small className='smallDescription'>Сейчас: {selectedCity ? selectedCity.name : 'город не выбран'}</small>
                     {!searchQuery && currentLevel !== 'countries' && (
                         <button className="backButton" onClick={goBack}>
