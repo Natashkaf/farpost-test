@@ -12,6 +12,16 @@ function CitySelector(){
     const [searchQuery, setSearchQuery] = useState('')
     const [data, setData] = useState(null)
     const [filteredCities, setFilteredCities] = useState([]);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
     useEffect(() => {
         const savedCityId = Cookies.get('savedCityId')
@@ -172,7 +182,11 @@ function CitySelector(){
                     className={`list-item ${city.count > 30000 ? 'bold-city' : ''} ${selectedCity?.id === city.id ? 'selected' : ''}`}
                     onClick={() => handleSelectCity(city)}
                 >
-                    {city.name}
+                    <div className="list-item">
+                        <span className="letter-indicator"></span>
+                        {city.name}
+                    </div>
+                    <small className="small-region">{selectedRegion.name}</small>
                 </button>
             ))
         }
@@ -243,72 +257,164 @@ function CitySelector(){
     return (
         <div>
             <div className="selectContainer">
-            <button onClick={()=>setModalOpen(true)}
-                    className='selectButton'>
-                Выбрать город
-            </button>
-            <span className='selectText'>
-  {selectedCity ? selectedCity.name : 'Город не выбран'}
-</span>
+                <button onClick={()=>setModalOpen(true)} className='selectButton'>
+                    Выбрать город
+                </button>
+                <span className='selectText'>
+                {selectedCity ? selectedCity.name : 'Город не выбран'}
+            </span>
             </div>
+
             {modalOpen && (
-                <div className='modalOverlay'>
-                <div className="modalContent">
-                    <div className="modalHeader">
-                        <h3> Выбор города </h3>
-                        <button className='cross' onClick={()=>setModalOpen(false)}></button>
-                    </div>
-                    <div style={{height:'10px'}}>
-                    {!searchQuery && <div className="magnifying-glass" ></div>}
-                    </div>
-                        <input
-                            type="text"
-                            className='searchCity'
-                            placeholder="Название города"
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                        />
-                    {searchQuery.length >0 && (
-                        <button className='crossClearSearch' onClick={()=>{
-                            setSearchQuery('')
-                            setFilteredCities([])
-                        }
-                        }>
-                        </button>
-                    )}
-                    <small className='smallDescription'>Сейчас: {selectedCity ? selectedCity.name : 'город не выбран'}</small>
-                    {!searchQuery && currentLevel !== 'countries' && (
-                        <button className="backButton" onClick={goBack}>
-                            <span className='arrow'></span>
-                            Назад
-                        </button>
-                    )}
-                    <div className='items-list'>
-                        {currentLevel === 'cities' && (
+                <div className='modalOverlay'
+                     onClick={() => setModalOpen(false)}
+                >
+                    <div className="modalContent"
+                         onClick={(e) => e.stopPropagation()}
+                    >
+                        {isMobile ? (
                             <>
-                                {filteredCities.length > 0
-                                    ? filteredCities.map((city, index) => (
+                                <div className="modalHeader">
+                                    <h3>Выбор города</h3>
+                                    <button className='cross' onClick={() => setModalOpen(false)} />
+                                </div>
+                                    <div className="magnifying-glass"></div>
+                                    <input
+                                        type="text"
+                                        className='searchCity'
+                                        placeholder="Название города"
+                                        value={searchQuery}
+                                        onChange={handleSearchChange}
+                                    />
+                                    {searchQuery.length > 0 && (
+                                        <button className='crossClearSearch' onClick={() => {
+                                            setSearchQuery('');
+                                            setFilteredCities([]);
+                                        }} />
+                                    )}
+                            </>
+                        ) : (
+                            <div className="modalHeader">
+                                <h3>Выбор города</h3>
+                                <div className="search">
+                                    <div className="magnifying-glass"></div>
+                                    <input
+                                        type="text"
+                                        className='searchCity'
+                                        placeholder="Название города"
+                                        value={searchQuery}
+                                        onChange={handleSearchChange}
+                                    />
+                                    {searchQuery.length > 0 && (
+                                        <button className='crossClearSearch' onClick={() => {
+                                            setSearchQuery('');
+                                            setFilteredCities([]);
+                                        }} />
+                                    )}
+                                </div>
+                                <button className='cross' onClick={() => setModalOpen(false)} />
+                            </div>
+                        )}
+
+                        <small className='smallDescription'>
+                            Сейчас: {selectedCity ? selectedCity.name : 'город не выбран'}
+                        </small>
+
+                        {!searchQuery && currentLevel !== 'countries' && (
+                            <button className="backButton" onClick={goBack}>
+                                <span className='arrow'></span>
+                                Назад
+                            </button>
+                        )}
+
+                        {isMobile ? (
+                            <div className='items-list'>
+                                {currentLevel === 'countries' && renderCountries()}
+                                {currentLevel === 'districts' && renderDistricts()}
+                                {currentLevel === 'regions' && renderRegions()}
+                                {currentLevel === 'cities' && (
+                                    filteredCities.length > 0 ? filteredCities.map(city => (
                                         <button
                                             key={city.id}
-                                            className={`list-item ${index === 0 ? 'bold-city' : ''} ${selectedCity?.id === city.id ? 'selected' : ''}`}
+                                            className={`list-item ${selectedCity?.id === city.id ? 'selected' : ''}`}
                                             onClick={() => handleSelectCity(city)}
                                         >
+                                            <div className="about-city">
                                             {city.name}
+                                            <small className="small-region">{selectedRegion?.name}</small>
+                                            </div>
                                         </button>
-                                    ))
-                                    : renderCities()
-                                }
-                            </>
-                        )}
-                        {currentLevel === 'countries' && renderCountries()}
-                        {currentLevel === 'districts' && renderDistricts()}
-                        {currentLevel === 'regions' && renderRegions()}
-                    </div>
+                                    )) : renderCities()
+                                )}
+                            </div>
+                        ) : (
+                            <div className="grid-position">
+                                <div className="column">
+                                    <div className="column-items">
+                                        {data?.find(c => c.name === 'Россия')?.children?.map(district => (
+                                            <button
+                                                key={district.id}
+                                                className={`list-item ${selectedDistrict?.id === district.id ? 'selected' : ''}`}
+                                                onClick={() => {
+                                                    setSelectedDistrict(district);
+                                                    setSelectedRegion(null);
+                                                    setSelectedCity(null);
+                                                }}
+                                            >
+                                                {district.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                {!selectedDistrict && !selectedRegion && (
+                                    <div className="background-picture">
+                                        <img src="src/assets/search-in-world.png" alt="" />
+                                    </div>
+                                )}
 
-                </div>
+                                {selectedDistrict && (
+                                    <div className="column">
+                                        <div className="column-items">
+                                            {selectedDistrict.children?.map(region => (
+                                                <button
+                                                    key={region.id}
+                                                    className={`list-item ${selectedRegion?.id === region.id ? 'selected' : ''}`}
+                                                    onClick={() => {
+                                                        setSelectedRegion(region);
+                                                        setSelectedCity(null);
+                                                    }}
+                                                >
+                                                    {region.name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedRegion && (
+                                    <div className="column">
+                                        <div className="column-items">
+                                            {filteredCities.length > 0 ? filteredCities.map(city => (
+                                                <button
+                                                    key={city.id}
+                                                    className={`list-item ${selectedCity?.id === city.id ? 'selected' : ''}`}
+                                                    onClick={() => handleSelectCity(city)}
+                                                >
+                                                    <div className="about-city">
+                                                        {city.name}
+                                                        <small className="small-region">{selectedRegion?.name}</small>
+                                                    </div>
+                                                </button>
+                                            )) : renderCities()
+                                            }
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
-
         </div>
     )
 
